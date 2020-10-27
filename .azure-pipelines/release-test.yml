@@ -36,10 +36,21 @@ jobs:
     inputs:
       filePath: 'tools/Test/SmokeTest/PrepareRequiredPowershell.ps1'
       arguments: '-RequiredPsVersion $(PSVersion)'      
-      
+
   - task: DownloadPipelineArtifact@2
-    condition: and(succeeded(), eq(variables['GalleryName'], 'LocalRepo'))
-    displayName: Download Artifacts from Build Pipeline
+    condition: and(succeeded(), eq(variables['GalleryName'], 'LocalRepo'), eq(variables['PipelineId'], ''))
+    displayName: Download Latest Artifacts from Build Pipeline
+    inputs:
+      buildType: specific
+      project: $(ProjectToDownloadArtifacts)
+      definition: $(BuildPipelineName)
+      buildVersionToDownload: 'latest'
+      artifactName: $(ArtifactName)
+      targetPath: $(Pipeline.Workspace)
+
+  - task: DownloadPipelineArtifact@2
+    condition: and(succeeded(), eq(variables['GalleryName'], 'LocalRepo'), ne(variables['PipelineId'], ''))
+    displayName: Download Specified Artifacts from Build Pipeline
     inputs:
       buildType: 'specific'
       project: $(ProjectToDownloadArtifacts)
