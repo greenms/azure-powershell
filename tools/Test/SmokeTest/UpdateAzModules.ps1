@@ -2,7 +2,10 @@
 param(
     [string]
     [Parameter(Mandatory = $true, Position = 0)]
-    $gallery
+    $gallery,
+    [bool]
+    [Parameter(Mandatory = $false, Position =1)]
+    $allowEquality = $false
 )
 
 # Get previous version of Az
@@ -27,8 +30,13 @@ $azVersion = (get-module Az).Version
 Write-Host "Az version before updated", $previousVersion
 Write-Host "Current version of Az", $azVersion
 
+Write-Host ([System.Version]$azComputeVersion -eq [System.Version]$previousVersion)
+Write-Host ([System.Version]$azComputeVersion -eq [System.Version]$previousVersion) -and $allowEquality
+
 if ([System.Version]$azVersion -gt [System.Version]$previousVersion) {
     Write-Host "Update Az successfully"
+}elseif(([System.Version]$azComputeVersion -eq [System.Version]$previousVersion) -and $allowEquality){
+    Write-Warning "Az did not update"
 }else{
     throw "Update Az failed"
 }
